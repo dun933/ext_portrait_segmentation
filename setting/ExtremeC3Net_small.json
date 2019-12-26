@@ -16,7 +16,7 @@
         "scaleIn" : 4
     },
     "data_config": {
-         "cash" : "./pickle_file/NSML_augV3.p",
+         "cash" : "./pickle_file/portrait.p",
         "dataset_name": "portraitAug",
         "data_dir": "../../Link512DATA/",
         "classes" : 2,
