@@ -4,9 +4,6 @@ Copyright (c) 2019-present NAVER Corp.
 MIT license
 '''
 
-# import os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-
 import torch
 import torch.nn as nn
 
@@ -403,7 +400,7 @@ if __name__ == '__main__':
     import time
     import torch
     from etc.flops_counter import add_flops_counting_methods, flops_to_string, get_model_parameters_number
-    from etc.flops_compute import compute_flops
+
     # model = C3_ESPNet_Encoder(classes=2, p=1, q=5)
     model = ExtremeC3Net_small(classes=1, p=1, q=5, stage2=True)
     batch = torch.FloatTensor(1, 3, 224, 224)
@@ -418,10 +415,7 @@ if __name__ == '__main__':
     total_paramters = sum(p.numel() for p in model.parameters())
     print(total_paramters)
 
-    # flops = compute_flops(model, input=torch.Tensor(1, 3, 224, 224))
-    # print('non use deconv Flops: ' + str(flops))
-    #
-    #
+
     # model.eval()
     #
     # images = torch.randn(1,3,224,224)

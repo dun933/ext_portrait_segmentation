@@ -3,33 +3,51 @@ ExtPortraitSeg
 Copyright (c) 2019-present NAVER Corp.
 MIT license
 '''
+
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = "0"
+
+import time
 import json
 import argparse
-
+import numpy as np
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.parallel
+import torch.backends.cudnn as cudnn
+import torch.optim as optim
 from etc.Tensor_logger import Logger
 from data.dataloader import get_dataloader
 import models
 from etc.help_function import *
 from etc.utils import *
+from etc.Visualize_video import ExportVideo
 from etc.flops_counter import add_flops_counting_methods, flops_to_string, get_model_parameters_number
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-c', '--config', type=str, default='./setting/ExtremeC3Net.json', help='JSON file for configuration')
+    parser.add_argument('-c', '--config', type=str, default='./setting/SINet.json', help='JSON file for configuration')
     parser.add_argument('-d', '--decoder_only', type=bool, default=False, help='Decoder only training')
-    parser.add_argument('-o', '--optim', type=str, default="Adam", help='Adam , SGD, RMS')
-    parser.add_argument('-s', '--lrsch', type=str, default="multistep", help='step, poly, multistep, warmpoly')
-    parser.add_argument('-t', '--wd_tfmode', type=bool, default=True, help='tensorflow style train')
-    parser.add_argument('-w', '--weight_decay', type=float, default=2e-4, help='value for weight decay')
+    # parser.add_argument('-o', '--optim', type=str, default="Adam", help='Adam , SGD, RMS')
+    # parser.add_argument('-s', '--lrsch', type=str, default="multistep", help='step, poly, multistep, warmpoly')
+    # parser.add_argument('-t', '--wd_tfmode', type=bool, default=True, help='tensorflow style train')
+    # parser.add_argument('-w', '--weight_decay', type=float, default=2e-4, help='value for weight decay')
     parser.add_argument('-v', '--visualize', type=bool, default=False, help='visualize result image')
 
     args = parser.parse_args()
-    others= args.weight_decay*0.05
     ############### setting framework ##########################################
     with open(args.config) as fin:
         config = json.load(fin)
     train_config = config['train_config']
     data_config = config['data_config']
+
+    args.optim = train_config["optim"]
+    args.lrsch = train_config["lrsch"]
+    args.wd_tfmode = train_config["wd_tfmode"]
+    args.weight_decay = train_config["weight_decay"]
+    others= args.weight_decay*0.01
+
 
     if train_config["loss"] == "Lovasz":
         train_config["num_classes"] = 1
@@ -222,23 +240,15 @@ if __name__ == '__main__':
             if data_config["Edge"] :
                 lossTr, ElossTr, mIOU_tr = \
                     train_edge(num_gpu, trainLoader, model, criteria, optimizer, Lovasz, epoch, train_config["epochs"])
-
-                if args.visualize:
-                    lossVal, ElossVal, mIOU_val, save_input, save_est, save_gt = \
-                        val_edge(num_gpu, valLoader, model, criteria, Lovasz, args.visualize)
-                else:
-                    lossVal, ElossVal, mIOU_val = val_edge(num_gpu, valLoader, model, criteria, Lovasz)
             else:
                 lossTr, mIOU_tr = \
                     train(num_gpu, trainLoader, model, criteria, optimizer, Lovasz, epoch, train_config["epochs"])
 
-                if args.visualize:
-                    lossVal, mIOU_val, save_input, save_est, save_gt = \
-                        val(num_gpu, valLoader, model, criteria, Lovasz, args.visualize)
-                else:
-                    lossVal, mIOU_val = val(num_gpu, valLoader, model, criteria, Lovasz)
-
-
+            if args.visualize:
+                lossVal, ElossVal, mIOU_val, save_input, save_est, save_gt = \
+                    val_edge(num_gpu, valLoader, model, criteria, Lovasz, args.visualize)
+            else:
+                lossVal, ElossVal, mIOU_val = val_edge(num_gpu, valLoader, model, criteria, Lovasz)
             # evaluate on validation set
 
             end_t = time.time()
@@ -270,7 +280,7 @@ if __name__ == '__main__':
                 epoch+1, 0, 0, mIOU_tr, mIOU_val, lr, (end_t - start_t)))
             logger.flush()
             print("Epoch : " + str(epoch+1) + ' Details')
-            print("\nEpoch No.: %d\t mIOU(tr) = %.4f\t mIOU(val) = %.4f" % (
+            print("Epoch No.: %d\t mIOU(tr) = %.4f\t mIOU(val) = %.4f \n" % (
                 epoch+1,mIOU_tr, mIOU_val))
 
             save_checkpoint({
@@ -473,21 +483,15 @@ if __name__ == '__main__':
             lossTr, ElossTr, mIOU_tr = \
                 train_edge(num_gpu, trainLoader, model, criteria, optimizer, Lovasz, epoch, train_config["epochs"])
 
-            if args.visualize:
-                lossVal, ElossVal, mIOU_val, save_input, save_est, save_gt = \
-                    val_edge(num_gpu, valLoader, model, criteria, Lovasz, args.visualize)
-            else:
-                lossVal, ElossVal, mIOU_val = val_edge(num_gpu, valLoader, model, criteria, Lovasz)
         else:
             lossTr, mIOU_tr = \
                 train(num_gpu, trainLoader, model, criteria, optimizer, Lovasz, epoch, train_config["epochs"])
 
-            if args.visualize:
-                lossVal, mIOU_val, save_input, save_est, save_gt = \
-                    val(num_gpu, valLoader, model, criteria, Lovasz, args.visualize)
-            else:
-                lossVal, mIOU_val = val(num_gpu, valLoader, model, criteria, Lovasz)
-
+        if args.visualize:
+            lossVal, ElossVal, mIOU_val, save_input, save_est, save_gt = \
+                val_edge(num_gpu, valLoader, model, criteria, Lovasz, args.visualize)
+        else:
+            lossVal, ElossVal, mIOU_val = val_edge(num_gpu, valLoader, model, criteria, Lovasz)
         end_t = time.time()
 
         if args.visualize:
@@ -530,7 +534,7 @@ if __name__ == '__main__':
             epoch+1, lossTr, lossVal, mIOU_tr, mIOU_val, lr, (end_t - start_t)))
         logger.flush()
         print("Epoch : " + str(epoch+1) + ' Details')
-        print("\nEpoch No.: %d\tTrain Loss = %.4f\tVal Loss = %.4f\t mIOU(tr) = %.4f\t mIOU(val) = %.4f" % (
+        print("Epoch No.: %d\tTrain Loss = %.4f\tVal Loss = %.4f\t mIOU(tr) = %.4f\t mIOU(val) = %.4f \n" % (
             epoch+1, lossTr, lossVal, mIOU_tr, mIOU_val))
 
         save_checkpoint({
@@ -564,14 +568,18 @@ if __name__ == '__main__':
     print(" new max iou : " + Max_name + '\t' + str(Max_val_iou))
 
     print("========== TRAINING FINISHED ===========")
-    # mean = data['mean']
-    # std = data['std']
-    # print(mean)
-    # print(std)
+    mean = data['mean']
+    std = data['std']
+    print(mean)
+    print(std)
+    if data_config["dataset_name"] =="pilportrait":
+        isPILlodear=True
+    else:
+        isPILlodear=False
     # ExportVideo(model, Max_name, "./video", logdir, "video2.mp4", data_config["h"], data_config["w"], mean, std, Lovasz,
-    #         pil=False)
+    #         pil=isPILlodear)
     # ExportVideo(model, Max_name, "./video", logdir, "video1.mp4", data_config["h"], data_config["w"], mean, std, Lovasz,
-    #             pil=False)
+    #             pil=isPILlodear)
 
 
 

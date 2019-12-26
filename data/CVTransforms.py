@@ -2,12 +2,6 @@ import numpy as np
 import torch
 import random
 import cv2
-
-__author__ = "Sachin Mehta"
-__license__ = "GPL"
-__version__ = "1.0.1"
-__maintainer__ = "Sachin Mehta"
-
 import math
 from PIL import Image, ImageEnhance, ImageOps, ImageFile
 

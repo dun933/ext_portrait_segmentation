@@ -18,7 +18,6 @@ def portrait_CVdataloader(cached_data_file, data_dir, classes, batch_size, scale
     if not os.path.isfile(cached_data_file):
         if Augset:
             additional_data = []
-            additional_data.append('/Nukki/instagram/')
             additional_data.append('/Nukki/baidu_V1/')
             additional_data.append('/Nukki/baidu_V2/')
 
@@ -78,7 +77,7 @@ def portrait_multiCVdataloader(cached_data_file, data_dir, classes, batch_size, 
     if not os.path.isfile(cached_data_file):
         if Augset:
             additional_data = []
-            additional_data.append('/Nukki/instagram/')
+
             additional_data.append('/Nukki/baidu_V1/')
             additional_data.append('/Nukki/baidu_V2/')
 
@@ -152,7 +151,7 @@ def portrait_multiCVdataloader(cached_data_file, data_dir, classes, batch_size, 
     print(" Load public val dataset")
 
     valLoader = torch.utils.data.DataLoader(
-        myDataLoader.CVDataset(data['valIm'], data['valAnnot'], transform=valDataset, edge= edge, Enc=Enc),
+        myDataLoader.CVDataset(data['valIm'], data['valAnnot'], transform=valDataset, edge= True, Enc=Enc),
         batch_size=batch_size, shuffle=False, num_workers=num_work, pin_memory=True)
 
 
@@ -169,7 +168,7 @@ def portraitPIL_Doublerandscalecrop(cached_data_file, data_dir, classes, batch_s
     if not os.path.isfile(cached_data_file):
         if Augset:
             additional_data = []
-            additional_data.append('/Nukki/instagram/')
+
             additional_data.append('/Nukki/baidu_V1/')
             additional_data.append('/Nukki/baidu_V2/')
 
@@ -222,7 +221,7 @@ def portraitPIL_Doublerandscalecrop(cached_data_file, data_dir, classes, batch_s
 
     valLoader = torch.utils.data.DataLoader(
         myDataLoader.PILDataset(data['valIm'], data['valAnnot'], Double=True,
-                                ignore_idx=ignore_idx, edge=edge, transform=val_transforms),
+                                ignore_idx=ignore_idx, edge=True, transform=val_transforms),
         batch_size=batch_size, shuffle=False, num_workers=num_work, pin_memory=True)
 
     return trainLoader, valLoader, data

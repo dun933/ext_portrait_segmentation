@@ -3,8 +3,6 @@ ExtPortraitSeg
 Copyright (c) 2019-present NAVER Corp.
 MIT license
 '''
-# import os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 import torch
 import torch.nn as nn
@@ -272,6 +270,33 @@ class InputProjectionA(nn.Module):
             input = pool(input)
         return input
 
+#
+#
+#
+# class C3_FineNet(nn.Module):
+#     def __init__(self, classes=20):
+#         super().__init__()
+#
+#         self.detail = nn.Sequential(
+#             # nn.Conv2d(kernel_size=3, stride=2, padding=1, in_channels=3, out_channels=basic_3,bias=False),
+#             CBR(3, basic_3, 3, 2),
+#             AdvancedC3(basic_3, basic_3, add=True),
+#             nn.BatchNorm2d(basic_3, eps=1e-03),
+#         )
+#         self.classifier = nn.Sequential(
+#                                         nn.PReLU(basic_3),
+#                                         nn.UpsamplingBilinear2d(scale_factor=2),
+#                                         nn.Conv2d(kernel_size=(1, 1), in_channels=basic_3, out_channels=classes,bias=False),
+#                                         )
+#
+#     def forward(self, input):
+#         '''
+#         :param input: RGB image
+#         :return: transformed feature map
+#         '''
+#
+#         classifier = self.classifier(self.detail(input))
+#         return classifier
 
 
 class ExtremeC3NetCoarse(nn.Module):
@@ -452,11 +477,7 @@ if __name__ == '__main__':
     total_paramters = sum(p.numel() for p in model.parameters())
     print(total_paramters)
 
-    # from etc.flops_compute import compute_flops
-    # flops = compute_flops(model, input=torch.Tensor(1, 3, 224, 224))
-    # print('non use deconv Flops: ' + str(flops))
-    #
-    #
+
     model.eval()
 
     images = torch.randn(1,3,224,224)

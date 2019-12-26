@@ -121,17 +121,15 @@ def evaluateModelCV(model, savedir, saveloc, mean, std, imgW, imgH, videoName, L
         img_tensor = torch.from_numpy(img)
         img_tensor = torch.unsqueeze(img_tensor, 0)  # add a batch dimension
 
-        if int(torch.__version__[2]) < 4:
-            img_variable = Variable(img_tensor, volatile=True)
-        else:
-            with torch.no_grad():
-                img_variable = torch.autograd.Variable(img_tensor)
 
-        if torch.cuda.is_available():
-            img_variable = img_variable.cuda()
+        with torch.no_grad():
+            img_variable = torch.autograd.Variable(img_tensor)
+
+            if torch.cuda.is_available():
+                img_variable = img_variable.cuda()
 
 
-        img_out = model(img_variable)
+            img_out = model(img_variable)
         img_orig = cv2.resize(img_orig, (imgW, imgH))
 
         if Lovasz:
@@ -198,17 +196,15 @@ def evaluateModelPIL(model, savedir, saveloc, mean, std, imgW, imgH, videoName, 
         img_tensor = F.to_tensor(img)  # convert to tensor (values between 0 and 1)
         img_tensor = F.normalize(img_tensor, mean, std)  # normalize the tensor
 
-        if int(torch.__version__[2]) < 4:
-                img_variable = Variable(img_tensor, volatile=True)
-        else:
-            with torch.no_grad():
-                img_variable = torch.autograd.Variable(img_tensor)
 
-        if torch.cuda.is_available():
-            img_variable = img_variable.cuda()
+        with torch.no_grad():
+            img_variable = torch.autograd.Variable(img_tensor)
 
-        img_variable= torch.unsqueeze(img_variable,0)
-        img_out = model(img_variable)
+            if torch.cuda.is_available():
+                img_variable = img_variable.cuda()
+
+            img_variable= torch.unsqueeze(img_variable,0)
+            img_out = model(img_variable)
         img_orig = cv2.resize(img_orig, (imgW, imgH))
 
         if Lovasz:
@@ -263,9 +259,8 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--config', type=str, default='../setting/SINet.json',
                         help='JSON file for configuration')
 
-    model_name = "Dnc_SB1"
-    Max_name = "../result/Dnc_SB110-02_0335/model_288.pth"
-    logdir= "../video/Dnc_SB110-02_0335"
+    Max_name = "../result/Dnc_SINet11-24_2218/model_3.pth"
+    logdir= "../video/Dnc_SINet11-24_2218"
     mean = [107.304565, 115.69884, 132.35703 ]
     std = [63.97182, 65.1337, 68.29726]
     args = parser.parse_args()
@@ -275,6 +270,8 @@ if __name__ == '__main__':
 
     train_config = config['train_config']
     data_config = config['data_config']
+
+    model_name = "Dnc_SINet"
 
     Lovasz = train_config["loss"] == "Lovasz"
     if Lovasz:

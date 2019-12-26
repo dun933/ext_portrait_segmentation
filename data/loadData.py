@@ -3,11 +3,6 @@ import cv2
 import pickle
 import os
 
-__author__ = "Sachin Mehta"
-__license__ = "GPL"
-__version__ = "1.0.1"
-__maintainer__ = "Sachin Mehta"
-
 class LoadData:
     '''
     Class to laod the data
@@ -213,7 +208,8 @@ class LoadData:
             data_dict['mean'] = self.mean
             data_dict['std'] = self.std
             data_dict['classWeights'] = self.classWeights
-
+            if not os.path.isdir("./pickle_file"):
+                os.mkdir("./pickle_file")
             pickle.dump(data_dict, open(self.cached_data_file, "wb"))
             return data_dict
         else:
@@ -245,7 +241,8 @@ class LoadData:
             data_dict['mean'] = self.mean
             data_dict['std'] = self.std
             data_dict['classWeights'] = self.classWeights
-
+            if not os.path.isdir("./pickle_file"):
+                os.mkdir("./pickle_file")
             pickle.dump(data_dict, open(self.cached_data_file, "wb"))
             # with open('EG1800_train.txt', 'w') as f:
             #     for item in self.train_txt:

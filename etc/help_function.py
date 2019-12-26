@@ -115,15 +115,13 @@ def train_edge(num_gpu, train_loader, model, criterion, optimizer, lovasz, epoch
 
         # set the grad to zero
         optimizer.zero_grad()
-        # print(input.size())
-        # print(output.size())
-        # print(target_var.size())
+
 
         loss = criterion(output, target_var)
         lossE = 0.5*criterion(output, edge_target_var)
 
-        # total_loss = loss + lossE
-        total_loss = loss
+        total_loss = loss + lossE
+
         optimizer.zero_grad()
         total_loss.backward()
         optimizer.step()
@@ -150,77 +148,6 @@ def train_edge(num_gpu, train_loader, model, criterion, optimizer, lovasz, epoch
     return average_epoch_loss_train, average_epoch_lossE_train, sum(mIOU) / len(mIOU),
 
 
-def val(num_gpu, val_loader, model, criterion, lovasz, vis=False):
-    '''
-    :param val_loader: loaded for validation dataset
-    :param model: model
-    :param criterion: loss function
-    :return: average epoch loss, overall pixel-wise accuracy, per class accuracy, per class iu, and mIOU
-    '''
-    # switch to evaluation mode
-    model.eval()
-
-    total_time =0
-    epoch_loss = []
-    total_batches = len(val_loader)
-    rand_pick = np.random.randint(0, len(val_loader))
-    mIOU=[]
-    f1score=[]
-
-    for i, (input, target, edge_target) in enumerate(val_loader):
-        start_time = time.time()
-
-        if num_gpu > 0:
-            input = input.cuda()
-            target = target.cuda()
-            edge_target = edge_target.cuda()
-
-
-            with torch.no_grad():
-                input_var, target_var, edge_target_var \
-                    = torch.autograd.Variable(input), torch.autograd.Variable(target), \
-                      torch.autograd.Variable(edge_target)
-
-                  # run the mdoel
-                output = model(input_var)
-
-                # compute the loss
-                loss = criterion(output, target_var)
-
-        if int(torch.__version__[2]) < 4:
-            epoch_loss.append(loss.data[0])
-        else:
-            epoch_loss.append(loss.item())
-
-        time_taken = time.time() - start_time
-        total_time += time_taken
-        # compute the confusion matrix
-        if lovasz:
-            IOU = iou_binary((output.data > 0).long(), target_var)
-            f1 =  calcF1((output.data > 0).long(), edge_target_var, ignore=255, per_image=True)
-
-        else:
-            IOU = iou_binary(output.max(1)[1].data.long(), target_var)
-            f1 =  calcF1(output.max(1)[1].data.long(), edge_target_var, ignore=255, per_image=True)
-
-        mIOU.append(IOU)
-        f1score.append(f1)
-
-        if i == rand_pick and vis:
-            save_input = input_var
-            save_out = output
-            save_target = target_var
-
-    average_epoch_loss_val = sum(epoch_loss) / len(epoch_loss)
-    print('loss: %.3f time:%.2f f1score: %.2f ' %
-          (average_epoch_loss_val, total_time/total_batches, sum(f1score) / len(f1score)))
-
-    if vis:
-        return average_epoch_loss_val, sum(mIOU)/len(mIOU), save_input, save_out, save_target
-    else:
-        return average_epoch_loss_val, sum(mIOU) / len(mIOU)
-
-
 def train(num_gpu, train_loader, model, criterion, optimizer, lovasz, epoch, total_ep):
     '''
 
@@ -239,39 +166,8 @@ def train(num_gpu, train_loader, model, criterion, optimizer, lovasz, epoch, tot
     total_time= 0
     total_batches = len(train_loader)
     for i, (input, target) in enumerate(train_loader):
-        # input_arr = (6500*input[0].data.permute(1, 2, 0).numpy()+128).astype(np.uint8)
-        # cv2.imshow("image0", input_arr)
-        # target_arr = 255 * target[0].data.numpy().astype(np.uint8)
-        # cv2.imshow("label0", target_arr)
-        #
-        # input_arr = (6500 * input[1].data.permute(1, 2, 0).numpy() + 128).astype(np.uint8)
-        # cv2.imshow("image1", input_arr)
-        # target_arr = 255 * target[1].data.numpy().astype(np.uint8)
-        # cv2.imshow("label1", target_arr)
-        #
-        # input_arr = (6500 * input[2].data.permute(1, 2, 0).numpy() + 128).astype(np.uint8)
-        # cv2.imshow("image2", input_arr)
-        # target_arr = 255 * target[2].data.numpy().astype(np.uint8)
-        # cv2.imshow("label2", target_arr)
-        #
-        # input_arr = (6500 * input[3].data.permute(1, 2, 0).numpy() + 128).astype(np.uint8)
-        # cv2.imshow("image3", input_arr)
-        # target_arr = 255 * target[3].data.numpy().astype(np.uint8)
-        # cv2.imshow("label3", target_arr)
-        #
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-        # #
+
         start_time = time.time()
-
-
-        # input_arr[:,:,0] = input_arr[:,:,0]
-
-        # input_arr = torchvision.transforms.ToPILImage()(input[0])
-        # cv2.imshow("image", np.array(input_arr))
-        # [106.90267 115.0241  130.67285]
-        # [62.213623 64.17969  68.387596]
-
 
         if num_gpu > 0:
             input = input.cuda()
@@ -285,19 +181,15 @@ def train(num_gpu, train_loader, model, criterion, optimizer, lovasz, epoch, tot
 
         # set the grad to zero
         optimizer.zero_grad()
-        # print(input.size())
-        # print(output.size())
-        # print(target_var.size())
+
 
         loss = criterion(output, target_var)
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        if int(torch.__version__[2]) < 4:
-            epoch_loss.append(loss.data[0])
-        else:
-            epoch_loss.append(loss.item())
+
+        epoch_loss.append(loss.item())
 
         time_taken = time.time() - start_time
         total_time += time_taken

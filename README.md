@@ -1,6 +1,7 @@
 # Extreme Lightwegith Portrait Segmentation
 
 
+
 ## Requirements
 
 - python 3
@@ -8,13 +9,14 @@
 - torchvision==0.2.1
 - opencv-python==3.4.2.17
 - numpy
-- tensorboardX
+- tensorflow >=1.13.0
 - visdom
+
 
 ## Model
 ExtremeC3Net ([paper](https://arxiv.org/abs/1908.03093))
 
-Hyojin Park, Lars Lowe Sjösund, YoungJoon Yoo, Nojun Kwak.
+Hyojin Park, Lars Lowe Sjösund, YoungJoon Yoo, Jihwan Bang, Nojun Kwak.
  
 "ExtremeC3Net: Extreme Lightweight Portrait Segmentation Networks using Advanced C3-modules"
 
@@ -25,14 +27,14 @@ Hyojin Park, Lars Lowe Sjösund, YoungJoon Yoo, Nojun Kwak.
 
 SINet ([paper](https://arxiv.org/abs/1911.09099))
 
-Hyojin Park, Lars Lowe Sjösund, YoungJoon Yoo, Nicolas Monet, Nojun Kwak
+Hyojin Park, Lars Lowe Sjösund, YoungJoon Yoo, Nicolas Monet, Jihwan Bang, Nojun Kwak
 
 SINet: Extreme Lightweight Portrait Segmentation Networks with Spatial Squeeze Modules and Information Blocking Decoder
 
 - config file : SINet.json
 - Param : 0.087 M
 - Flop : 0.064 G
-- IoU : 95.29 
+- IoU : 95.2 
 ## Run example
 
 
@@ -41,6 +43,7 @@ SINet: Extreme Lightweight Portrait Segmentation Networks with Spatial Squeeze M
 
 Download datasets 
 if you use audgmented dataset, fix the code in dataloader.py in line 20 depending on location of augmented dataset.
+Also, please make different pickle file for Augmented dataset and baseline dataset.
 
 - Train
 
@@ -49,16 +52,13 @@ if you use audgmented dataset, fix the code in dataloader.py in line 20 dependin
 ```shell
 python main.py --c ExtremeC3Net.json
 ```
-2 . SINet (soon)
+2 . SINet 
    
 ```shell
 python main.py --c SINet.json
 ```
  
- 
-## Trained model
 
-will be soon
 
 ## Additonal Dataset
 
@@ -81,8 +81,12 @@ If our works is useful to you, please add two papers.
   year={2019}
 }
 
-SINet: Extreme Lightweight Portrait Segmentation Networks with Spatial Squeeze Modules and Information Blocking Decoder
-( Soon )
+@article{park2019sinet,
+  title={SINet: Extreme Lightweight Portrait Segmentation Networks with Spatial Squeeze Modules and Information Blocking Decoder},
+  author={Park, Hyojin and Sj{\"o}sund, Lars Lowe and Monet, Nicolas and Yoo, YoungJoon and Kwak, Nojun},
+  journal={arXiv preprint arXiv:1911.09099},
+  year={2019}
+}
 
 ```
 
@@ -90,7 +94,9 @@ SINet: Extreme Lightweight Portrait Segmentation Networks with Spatial Squeeze M
 We are grateful to [Clova AI, NAVER](https://github.com/clovaai) with valuable discussions.
 
 I also appreciate my co-authors Lars Lowe Sjösund and YoungJoon Yoo from  [Clova AI, NAVER](https://clova.ai/en/research/research-areas.html),
-and  Nicolas Monet from [NAVER LABS Europe](https://europe.naverlabs.com/).
+Nicolas Monet from [NAVER LABS Europe](https://europe.naverlabs.com/)
+and Jihwan Bang from [Search Solutions, Inc](https://www.searchsolutions.co.kr/)
+
 
 ## License
 
@@ -115,4 +121,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ```
-
