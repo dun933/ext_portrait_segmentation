@@ -7,7 +7,7 @@
         "p" : 2,
         "q" : 8,
         "chnn" : 1,
-        "epochs": 6,
+        "epochs": 300,
         "dnc_batch" : 24,
         "loss" : "Lovasz",
 
@@ -19,7 +19,7 @@
 
     },
     "data_config": {
-        "cash" : "./pickle_file/NSML_portrait.p",
+        "cash" : "./pickle_file/portrait.p",
         "dataset_name": "CVportrait",
         "data_dir": "../../Link512DATA/",
         "classes" : 2,
@@ -31,7 +31,7 @@
         "h" :224,
         "scaleIn" : 8,
         "batch_size": 36,
-        "Edge" :false,
-        "Aug_dataset" : false
+        "Edge" :true,
+        "Aug_dataset" : true
     }
 }
