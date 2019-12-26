@@ -7,7 +7,7 @@
         "p" : 1,
         "q" : 5,
         "stage1_W": "",
-        "epochs": 3,
+        "epochs": 300,
         "dnc_batch" : 40,
         "loss" : "Lovasz",
 
