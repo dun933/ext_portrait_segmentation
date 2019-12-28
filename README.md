@@ -71,6 +71,10 @@ EG1800 dataset link what I used in [here](https://drive.google.com/file/d/1QmMrv
 Our augmented dataset is [here](https://drive.google.com/file/d/1e9nJtGQYy1zdVLIDP7_xALUR1iwOaeuN/view?usp=sharing). 
 We use all train and val dataset for training segmentation model. 
 
+## CityScape
+If you want SINet code for cityscapes dataset, please go to this [link](https://github.com/clovaai/c3_sinet).
+
+
 ## Citation
 If our works is useful to you, please add two papers.
 ```shell
