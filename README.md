@@ -1,4 +1,4 @@
-# Extreme Lightwegith Portrait Segmentation
+# Extreme Lightweight Portrait Segmentation
 
 
 
